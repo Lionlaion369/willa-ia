@@ -1,41 +1,67 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE html><html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Willa IA</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Willa - IA Companheira</title>
+  <meta name="description" content="Willa é sua assistente inteligente pessoal, criada por William Gomes." />
+  <link rel="icon" href="logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="chat-container">
-    <img src="assets/logo.png" alt="Willa Logo" class="logo" />
-    <h1>Willa IA</h1>
-    <div id="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Digite sua mensagem..." autocomplete="off"/>
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
-  <script>
+<body class="bg-gray-100 text-gray-900 font-sans flex flex-col items-center min-h-screen">  <header class="w-full bg-white shadow p-4 flex justify-between items-center">
+    <img src="logo.png" alt="Logo da Willa" class="w-12 h-12 rounded-full" />
+    <h1 class="text-2xl font-bold">Willa - Assistente IA</h1>
+    <a href="https://github.com/Lionlaion369/willa" target="_blank" class="text-blue-600 underline">GitHub</a>
+  </header>  <main class="flex flex-col items-center justify-center w-full max-w-2xl p-4 flex-grow">
+    <div id="chat-box" class="bg-white w-full rounded-xl shadow p-4 h-[500px] overflow-y-auto space-y-4">
+      <div class="text-gray-500 text-center">Willa pronta para conversar...</div>
+    </div><form id="chat-form" class="mt-4 w-full flex gap-2">
+  <input type="text" id="user-input" placeholder="Digite sua mensagem..." class="flex-grow p-2 rounded border border-gray-300" required />
+  <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Enviar</button>
+</form>
+
+  </main>  <footer class="text-sm text-gray-500 py-4 text-center">
+    &copy; 2025 William Gomes - Projeto Willa IA
+  </footer>  <script>
     const form = document.getElementById('chat-form');
     const input = document.getElementById('user-input');
     const chatBox = document.getElementById('chat-box');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const message = input.value;
-      if (!message) return;
-      chatBox.innerHTML += `<div class="user-msg"><strong>Você:</strong> ${message}</div>`;
-      input.value = '';
-      const res = await fetch('/mensagem', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-      const data = await res.json();
-      chatBox.innerHTML += `<div class="willa-msg"><strong>Willa:</strong> ${data.response}</div>`;
+    async function enviarMensagem(mensagem) {
+      const msgUsuario = document.createElement('div');
+      msgUsuario.className = 'text-right';
+      msgUsuario.innerHTML = `<span class="bg-purple-100 p-2 rounded inline-block">${mensagem}</span>`;
+      chatBox.appendChild(msgUsuario);
       chatBox.scrollTop = chatBox.scrollHeight;
+
+      const resposta = document.createElement('div');
+      resposta.className = 'text-left';
+      resposta.innerHTML = `<span class="bg-gray-200 p-2 rounded inline-block">Digitando...</span>`;
+      chatBox.appendChild(resposta);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch('https://us-central1-willa-ia.cloudfunctions.net/chatIA', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: mensagem })
+        });
+
+        const data = await res.json();
+        resposta.innerHTML = `<span class="bg-green-100 p-2 rounded inline-block">${data.resposta}</span>`;
+      } catch (err) {
+        resposta.innerHTML = `<span class="bg-red-100 p-2 rounded inline-block">Erro: ${err.message}</span>`;
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (msg) {
+        enviarMensagem(msg);
+        input.value = '';
+      }
     });
-  </script>
-</body>
+  </script></body>
 </html>
