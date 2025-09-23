@@ -1,29 +1,26 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ChatService {
-  final String serverUrl; // ex: https://willa-server.herokuapp.com
-  final String serverToken; // SERVER_API_TOKEN
+class ChatService extends ChangeNotifier {
+  final List<Map<String, String>> messages = [];
 
-  ChatService({required this.serverUrl, required this.serverToken});
+  Future<void> sendMessage(String text) async {
+    if (text.isEmpty) return;
 
-  Future<String> sendMessage(List<Map<String, String>> messages) async {
-    final resp = await http.post(
-      Uri.parse('$serverUrl/v1/chat'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-server-token': serverToken
-      },
-      body: jsonEncode({
-        'messages': messages,
-        'model': 'gpt-4o-mini'
-      }),
+    messages.add({'role': 'user', 'text': text});
+    notifyListeners();
+
+    final response = await http.post(
+      Uri.parse("http://localhost:3000/chat"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"message": text}),
     );
-    if (resp.statusCode != 200) {
-      throw Exception('Server error: ${resp.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      messages.add({'role': 'assistant', 'text': data['reply']});
+      notifyListeners();
     }
-    final json = jsonDecode(resp.body);
-    // adapt depending on OpenAI response structure
-    return json['choices'][0]['message']['content'] ?? '';
   }
 }
