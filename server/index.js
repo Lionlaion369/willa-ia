@@ -1,46 +1,33 @@
-// server/index.js
-require('dotenv').config();
-const express = require('express');
-const fetch = require('node-fetch'); // or use openai sdk
-const bodyParser = require('body-parser');
-const cors = require('cors');
+import express from "express";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
 
+dotenv.config();
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Protect this endpoint with a simple API_TOKEN header (set in client)
-const API_TOKEN = process.env.SERVER_API_TOKEN; // generate a strong token and set in flutter client
+app.post("/chat", async (req, res) => {
+  const { message } = req.body;
 
-const requireAuth = (req, res, next) => {
-  const token = req.headers['x-server-token'];
-  if (!token || token !== API_TOKEN) return res.status(401).json({error: 'unauthorized'});
-  next();
-};
-
-app.post('/v1/chat', requireAuth, async (req, res) => {
-  const { messages, model = 'gpt-4o-mini' } = req.body;
   try {
-    // Example using OpenAI REST (adjust to SDK if you prefer)
-    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: 800
-      })
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: message }],
+      }),
     });
-    const data = await resp.json();
-    res.json(data);
+
+    const data = await response.json();
+    res.json({ reply: data.choices[0].message.content });
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: 'server_error', detail: err.message});
+    res.status(500).json({ error: "Erro no servidor." });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+app.listen(3000, () => console.log("🚀 Willa server rodando na porta 3000"));
