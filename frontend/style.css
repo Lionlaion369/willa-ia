@@ -1,1 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #101820;
+  color: #f0f0f0;
+  text-align: center;
+  padding: 20px;
+}
 
+h1 {
+  color: #00e6b8;
+}
+
+textarea {
+  width: 80%;
+  height: 100px;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  background: #00e6b8;
+  color: #101820;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+pre {
+  margin-top: 20px;
+  text-align: left;
+  background: #1e2a38;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
