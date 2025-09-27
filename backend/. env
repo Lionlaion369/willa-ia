@@ -1,1 +1,4 @@
-
+OPENAI_API_KEY=sua_chave_openai_aqui
+GITHUB_USER=SeuUsuarioGitHub
+GITHUB_TOKEN=SeuTokenGitHub
+CODEMAGIC_TOKEN=SeuTokenCodemagic
